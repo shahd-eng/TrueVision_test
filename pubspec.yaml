@@ -44,6 +44,9 @@ dependencies:
 
   # Local storage for tokens and user data
   shared_preferences: ^2.2.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+  google_fonts: ^8.0.2
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +72,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/images/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

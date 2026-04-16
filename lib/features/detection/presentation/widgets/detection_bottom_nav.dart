@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:true_vision/core/constants/app_images.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
-// استبدلي المسارات دي بالمسارات الحقيقية لصفحاتك
-// import 'package:true_vision/features/history/presentation/pages/history_page.dart';
-// import 'package:true_vision/features/detection/presentation/pages/choose_function_page.dart';
-
 import '../../../../core/theme/app_colors.dart';
+import '../../../../domain/entities/user.dart';
+import '../../../dashboard/pages/dashboard_home_page.dart';
+import '../../../education/education_mode_home.dart';
+import '../../../profile/pages/profile_page.dart';
 import '../pages/choose_function_page.dart';
 import '../pages/history_page.dart';
 
@@ -43,15 +43,26 @@ class BottomNav extends StatelessWidget {
                   icon: Icons.home_rounded,
                   label: 'Home',
                   isSelected: activePage == 'home',
-                  onTap: () {
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                  },
+    onTap: () {
+    if (activePage != 'Home') {
+    Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const DashboardHomePage()),
+    );
+    }}
                 ),
                 _NavItem(
                   icon: Icons.school_rounded,
                   label: 'Learn',
                   isSelected: activePage == 'learn',
-                  onTap: () {},
+                  onTap: () {
+                    if (activePage != 'learn') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EducationHomeScreen()),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(width: 60),
                 _NavItem(
@@ -69,7 +80,21 @@ class BottomNav extends StatelessWidget {
                   icon: Icons.person_rounded,
                   label: 'Profile',
                   isSelected: activePage == 'profile',
-                  onTap: () {},
+                  onTap: () {
+                    if (activePage != 'profile') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(
+                            user: User(
+                              name: "Shahd Hany", // حطي اسمك يا ليدر
+                              avatarPath: null, // أو لو عندك صورة في الـ assets
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

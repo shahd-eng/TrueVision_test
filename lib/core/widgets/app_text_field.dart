@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../theme/app_colors.dart';
 
 class AppTextField extends StatefulWidget {
@@ -12,6 +11,7 @@ class AppTextField extends StatefulWidget {
     this.errorText,
     this.controller,
     this.onChanged,
+    this.initialValue, // مضاف عشان سكرينات سما (اختياري)
   });
 
   final String? hint;
@@ -21,6 +21,7 @@ class AppTextField extends StatefulWidget {
   final String? errorText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final String? initialValue; // مضاف لضمان التوافق
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -28,17 +29,34 @@ class AppTextField extends StatefulWidget {
 
 class _AppTextFieldState extends State<AppTextField> {
   late bool _isObscured;
+  TextEditingController? _effectiveController;
 
   @override
   void initState() {
     super.initState();
     _isObscured = widget.obscureText;
+
+    // لو إنتي باعتة controller هيستخدمه، لو مش باعتة وفيه initialValue (شغل سما) هيعمل واحد جديد
+    if (widget.controller != null) {
+      _effectiveController = widget.controller;
+    } else if (widget.initialValue != null) {
+      _effectiveController = TextEditingController(text: widget.initialValue);
+    }
+  }
+
+  @override
+  void dispose() {
+    // بنمسح الـ controller اللي عملناه يدوي بس عشان ما يستهلكش ميموري
+    if (widget.controller == null) {
+      _effectiveController?.dispose();
+    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: widget.controller,
+      controller: _effectiveController,
       obscureText: _isObscured,
       keyboardType: widget.keyboardType,
       onChanged: widget.onChanged,
@@ -50,7 +68,6 @@ class _AppTextFieldState extends State<AppTextField> {
           color: Colors.white.withValues(alpha: 0.6),
           fontSize: 14,
         ),
-
         prefixIcon: widget.obscureText
             ? IconButton(
           icon: Icon(
@@ -65,7 +82,6 @@ class _AppTextFieldState extends State<AppTextField> {
             : (widget.prefixIconData != null
             ? Icon(widget.prefixIconData, color: AppColors.primaryBackgroundLightColor, size: 20)
             : null),
-
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
