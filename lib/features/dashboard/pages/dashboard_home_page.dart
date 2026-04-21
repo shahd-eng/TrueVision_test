@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/app_colors.dart';
+import '../../detection/presentation/widgets/detection_bottom_nav.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/recent_detections_section.dart';
@@ -26,6 +27,7 @@ class _DashboardHomePageState extends State<DashboardHomePage> {
       // بنادي على الميثود اللي بتعمل 'الطبخة' وتجهز الكوبيت بالـ Repository والـ DataSource
       create: (context) => Injection.createDashboardCubit()..loadDashboard(),
       child: Scaffold(
+        bottomNavigationBar:BottomNav(activePage: 'Home',) ,
         backgroundColor: AppColors.primaryBackgroundDarkColor,
         body: BlocBuilder<DashboardCubit, DashboardState>(
           builder: (context, state) {

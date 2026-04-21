@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:true_vision/features/profile/pages/subscription_plans_page.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../domain/entities/user.dart';
+import '../../detection/presentation/widgets/detection_bottom_nav.dart';
 import '../../shell/main_shell.dart';
 import '../pages/edit_profile_page.dart';
 import '../../../core/widgets/app_container.dart';
@@ -24,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     // Scaffold هو الحل السحري لمشكلة الشاشة الحمراء
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Profile',) ,
       backgroundColor: const Color(0xFF0F172A), // نفس درجة الخلفية اللي إنتي مستخدماها
       body: SafeArea(
         child: Column(

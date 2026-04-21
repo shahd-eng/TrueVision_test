@@ -24,7 +24,7 @@ class TrueVisionApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TrueVision',
       theme: AppTheme.light,
-      home: const SplashPage(),
+      home: const ChooseFunctionPage(),
     );
   }
 }

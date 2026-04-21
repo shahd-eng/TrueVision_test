@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'TypesOfDeepfakeScreen.dart';
 import '../../core/widgets/app_container.dart';
 import '../../core/widgets/app_button.dart';
@@ -10,6 +11,7 @@ class WhatIsDeepfakeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
       backgroundColor: const Color(0xFF0E1728),
       body: Column(
         children: [

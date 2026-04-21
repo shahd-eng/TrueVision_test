@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'RisksAndEthicsScreen.dart';
 import '../../core/widgets/app_container.dart';
 import '../../core/widgets/app_button.dart';
@@ -121,6 +122,7 @@ class DetectDeepfakeScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
     );
   }
 

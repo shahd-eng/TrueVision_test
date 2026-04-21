@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/widgets/app_container.dart';
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 
 class RealOrFakeQuizScreen extends StatefulWidget {
   const RealOrFakeQuizScreen({super.key});
@@ -17,6 +18,7 @@ class _RealOrFakeQuizScreenState extends State<RealOrFakeQuizScreen> {
     const Color scaffoldBgColor = Color(0xFF0A1220);
 
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
       backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

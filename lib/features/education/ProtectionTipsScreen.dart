@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'RealOrFakeQuizScreen.dart';
 import '../../core/widgets/app_button.dart';
 
@@ -12,6 +13,7 @@ class ProtectionTipsScreen extends StatelessWidget {
     const Color primaryGreen = Color(0xFF3D9889);
 
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
       backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

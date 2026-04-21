@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../detection/presentation/widgets/detection_bottom_nav.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
@@ -16,6 +17,7 @@ class EditProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Profile',) ,
       backgroundColor: scaffoldBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -50,7 +52,7 @@ class EditProfileScreen extends StatelessWidget {
         ],
       ),
       // Fix: Use bottomNavigationBar to keep buttons at the bottom regardless of scroll
-      bottomNavigationBar: _buildBottomActionButtons(),
+    //  bottomNavigationBar: _buildBottomActionButtons(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(

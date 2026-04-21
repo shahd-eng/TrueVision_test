@@ -393,6 +393,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../detection/presentation/widgets/detection_bottom_nav.dart';
 
 class SubscriptionPlansScreen extends StatefulWidget {
   const SubscriptionPlansScreen({super.key});
@@ -411,6 +412,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Profile',) ,
       backgroundColor: scaffoldBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

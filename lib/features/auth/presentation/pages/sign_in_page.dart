@@ -11,6 +11,7 @@ import 'package:true_vision/features/detection/presentation/pages/choose_functio
 import 'package:true_vision/features/detection/presentation/pages/media_type_page.dart';
 
 import '../../../../core/widgets/social_login_button.dart';
+import '../../../dashboard/pages/dashboard_home_page.dart';
 import '../../data/auth_api_service.dart';
 import '../../data/token_storage.dart';
 
@@ -68,7 +69,7 @@ class _SignInPageState extends State<SignInPage> {
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const ChooseFunctionPage()),
+        MaterialPageRoute<void>(builder: (_) => const DashboardHomePage()),
       );
     } on AuthException catch (e) {
       if (!mounted) return;

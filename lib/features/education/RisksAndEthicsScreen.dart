@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'ProtectionTipsScreen.dart';
 import '../../core/widgets/app_container.dart';
 import '../../core/widgets/app_button.dart';
@@ -12,6 +13,7 @@ class RisksAndEthicsScreen extends StatelessWidget {
     const Color scaffoldBgColor = Color(0xFF0E1728);
 
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
       backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

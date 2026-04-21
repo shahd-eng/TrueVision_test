@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import '../shell/main_shell.dart';
 import 'DetectDeepfakeScreen.dart';
 import 'HowItsMadeScreen.dart';
@@ -232,6 +233,7 @@ class EducationHomeScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'HowItsMadeScreen.dart';
 import '../../core/widgets/app_button.dart';
 
@@ -17,6 +18,7 @@ class _TypesOfDeepfakeScreenState extends State<TypesOfDeepfakeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar:BottomNav(activePage: 'Learn',) ,
       backgroundColor: const Color(0xFF0E1728),
       /// 1. Header (بدون Gradient المرة دي حسب الصورة)
       appBar: AppBar(
