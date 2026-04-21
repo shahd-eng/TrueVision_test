@@ -11,6 +11,8 @@ import 'package:true_vision/features/detection/presentation/widgets/detection_bo
 import 'package:true_vision/features/detection/presentation/widgets/detection_or_divider.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_upload_card.dart';
 
+import '../../../../core/theme/app_colors.dart';
+
 class DeepfakeAnalyzerPage extends StatefulWidget {
   const DeepfakeAnalyzerPage({super.key, required this.mediaType});
 
@@ -76,7 +78,7 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DetectionTheme.backgroundDark,
+      backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
         child: Padding(

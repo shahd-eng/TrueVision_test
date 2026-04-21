@@ -18,6 +18,7 @@ class AppColors {
   static const Color shadowColor = Color(0xFF96BAC9);
   static const Color lightTextSecondary = Color(0xFF6F7D7D);
   static const Color error = Color(0xFFFF3D00);
+
 }
 
 

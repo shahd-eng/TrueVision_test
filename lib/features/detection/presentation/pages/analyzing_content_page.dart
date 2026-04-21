@@ -10,6 +10,7 @@ import 'package:true_vision/features/detection/core/detection_theme.dart';
 import 'package:true_vision/features/detection/presentation/pages/scan_result_page.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_app_bar.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/auth_service_manager.dart';
 
 class AnalyzingContentPage extends StatefulWidget {
@@ -142,7 +143,7 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DetectionTheme.backgroundDark,
+      backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
         // hp(context, 10) مثلاً عشان تدي مساحة كافية للـ AppBar والمسافة اللي فوقه
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),

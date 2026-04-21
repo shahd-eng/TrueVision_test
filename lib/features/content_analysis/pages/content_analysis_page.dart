@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/utils/app_colors.dart';
+
+import '../../../core/theme/app_colors.dart';
 import '../../../domain/entities/trending_item.dart';
 import '../../../core/widgets/app_container.dart';
 import '../../../core/widgets/app_button.dart';
@@ -30,7 +31,7 @@ class _ContentAnalysisPageState extends State<ContentAnalysisPage> {
     final displayPercent = probability > 0 ? probability.round() : 82;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryBackgroundDarkColor,
+      backgroundColor:AppColors.navy500,
       appBar: _buildAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -60,7 +61,7 @@ class _ContentAnalysisPageState extends State<ContentAnalysisPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.primaryBackgroundDarkColor,
+      backgroundColor: AppColors.navy500,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white, size: 25),
@@ -111,7 +112,7 @@ class _ContentAnalysisPageState extends State<ContentAnalysisPage> {
                         'assets/images/veo3-pic 1.png',
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.authCardBackground,
+                          color: AppColors.navy500,
                           child: const Icon(
                             Icons.image_not_supported_outlined,
                             size: 48,

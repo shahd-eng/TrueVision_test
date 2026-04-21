@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import 'RisksAndEthicsScreen.dart';
 import '../../core/widgets/app_container.dart';
@@ -10,10 +11,10 @@ class DetectDeepfakeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color scaffoldBgColor = Color(0xFF0E1728);
+
 
     return Scaffold(
-      backgroundColor: scaffoldBgColor,
+      backgroundColor: AppColors.navy500,
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -79,10 +80,10 @@ class DetectDeepfakeScreen extends StatelessWidget {
             childAspectRatio: 1.1,
             clipBehavior: Clip.none,
             children: [
-              _buildClueCard("1", "Unnatural Eyes", "Unusual blinking or eye movement.", scaffoldBgColor),
-              _buildClueCard("2", "Lip Sync issues", "Lips don’t match the words.", scaffoldBgColor),
-              _buildClueCard("3", "Light & Shadow", "Inconsistent lighting on face.", scaffoldBgColor),
-              _buildClueCard("4", "Audio mismatch", "Voice sounds robotic or fake.", scaffoldBgColor),
+              _buildClueCard("1", "Unnatural Eyes", "Unusual blinking or eye movement.", AppColors.navy500),
+              _buildClueCard("2", "Lip Sync issues", "Lips don’t match the words.", AppColors.navy500),
+              _buildClueCard("3", "Light & Shadow", "Inconsistent lighting on face.", AppColors.navy500),
+              _buildClueCard("4", "Audio mismatch", "Voice sounds robotic or fake.", AppColors.navy500),
             ],
           ),
 

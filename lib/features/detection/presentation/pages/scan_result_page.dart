@@ -1,16 +1,16 @@
 import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:true_vision/core/constants/app_images.dart';
 import 'package:true_vision/core/responsive/app_responsive.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
 import 'package:true_vision/features/detection/core/detection_media_type.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_app_bar.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_bottom_nav.dart';
-import 'package:true_vision/features/detection/presentation/widgets/segment_thumbnail.dart';
 import 'package:true_vision/features/detection/presentation/widgets/video_info_card.dart';
+
+import '../../../../core/theme/app_colors.dart';
 
 class ScanResultPage extends StatelessWidget {
   const ScanResultPage({
@@ -26,32 +26,28 @@ class ScanResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. استخراج البيانات بذكاء
+
     final Map<String, dynamic> data = result['result'] ?? result;
 
-    // 3. قراءة الليبل
+
     final String label = (data['label'] ?? data['predicted_label'] ?? 'Unknown').toString();
 
-    // --- دالة سحرية لتنظيف الأرقام من علامة % وتحويلها لـ double ---
+
     double parseValue(dynamic val) {
       if (val == null) return 0.0;
-      // بنشيل علامة % لو موجودة ونحول النص لرقم
       String cleanVal = val.toString().replaceAll('%', '').trim();
       return double.tryParse(cleanVal) ?? 0.0;
     }
 
-    // 4. استخراج النسب (بندور في المستوى العادي أو جوه 'probabilities')
     final Map<String, dynamic> probs = data['probabilities'] ?? {};
 
     double realValueRaw = parseValue(data['real_prob'] ?? data['real_probability'] ?? probs['real']);
     double fakeValueRaw = parseValue(data['fake_prob'] ?? data['fake_probability'] ?? probs['fake']);
 
-    // 5. التصحيح الأوتوماتيكي
-    // لو الرقم جاي 86.8 (زي الصوت) أو 0.868 (زي الصور)
+
     if (realValueRaw > 1.0) realValueRaw /= 100;
     if (fakeValueRaw > 1.0) fakeValueRaw /= 100;
 
-    // 6. التنسيق النهائي للعرض
     final String realPercentStr = "${(realValueRaw * 100).toStringAsFixed(1)}%";
     final String fakePercentStr = "${(fakeValueRaw * 100).toStringAsFixed(1)}%";
     final int fakeValue = (fakeValueRaw * 100).toInt();
@@ -59,9 +55,8 @@ class ScanResultPage extends StatelessWidget {
     final Color resultColor = label.toLowerCase().contains('fake')
         ? DetectionTheme.cancelRed
         : Colors.greenAccent;
-
-    return Scaffold(
-      backgroundColor: DetectionTheme.backgroundDark,
+      return Scaffold(
+      backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
         child: Padding(
@@ -81,7 +76,7 @@ class ScanResultPage extends StatelessWidget {
           children: [
             SizedBox(height: AppResponsive.hp(context, 3)),
 
-            // عرض حالة النتيجة
+
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -99,17 +94,13 @@ class ScanResultPage extends StatelessWidget {
 
             SizedBox(height: AppResponsive.hp(context, 3)),
 
-            VideoInfoCard(
 
+            VideoInfoCard(
               fileName: file.path.split('/').last,
               scannedAt: 'Today at ${TimeOfDay.now().format(context)}',
-
-              duration: mediaType == DetectionMediaType.image
-                  ? 'Type: Static Image'
-                  : 'Type: Audio Stream',
-              size: 'Size: ${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB',
+              duration: mediaType == DetectionMediaType.image ? 'Static Image' : 'Audio Stream',
+              size: '${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB',
               mediaType: mediaType,
-
             ),
 
             SizedBox(height: AppResponsive.hp(context, 2)),
@@ -119,7 +110,6 @@ class ScanResultPage extends StatelessWidget {
 
             SizedBox(height: AppResponsive.hp(context, 2.5)),
 
-            // عرض نسب الـ Confidence
             Row(
               children: [
                 Expanded(child: _buildConfidenceBox("AI Fake", fakePercentStr, DetectionTheme.cancelRed)),
@@ -130,75 +120,59 @@ class ScanResultPage extends StatelessWidget {
 
             SizedBox(height: AppResponsive.hp(context, 3)),
 
-            // أزرار التحميل والمشاركة
-            _buildActionButtons(),
+
+            _buildActionButtons(label, realPercentStr, fakePercentStr),
 
             const SizedBox(height: 24),
             Divider(color: Colors.white.withValues(alpha: 0.2), thickness: 1),
             const SizedBox(height: 16),
 
-
-// صف بيعرض الليبل والنسبة فوق بعض بشكل شيك
             const Text(
               'Deepfake Probability Details',
-              style: TextStyle(
-                color: DetectionTheme.primaryLight,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(color: DetectionTheme.primaryLight, fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
+// بار تحليل الـ Fake
 
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-
-                  mediaType == DetectionMediaType.image
-                      ? 'Image Manipulation Analysis'
-                      : 'Voice Synthesis Analysis',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 13,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    mediaType == DetectionMediaType.image ? 'Image Manipulation Analysis' : 'Voice Synthesis Analysis',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
                   ),
-                ),
-                Text(
-                  '$fakeValue%',
-                  style: TextStyle(
-                    color: resultColor, // اللون أحمر لو فيك، أخضر لو ريل
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+
+                  Text(
+                      label.toLowerCase().contains('fake') ? fakePercentStr : realPercentStr,
+                      style: TextStyle(color: resultColor, fontSize: 15, fontWeight: FontWeight.bold)
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: fakeValue / 100,
-                minHeight: 10,
-                backgroundColor: Colors.greenAccent.withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(resultColor),
+                ],
               ),
-            ),
-
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  // لو ريل، البار يتملي بنسبة الريل (94.5%)
+                  value: label.toLowerCase().contains('fake') ? (fakeValueRaw) : (realValueRaw),
+                  minHeight: 10,
+                  backgroundColor: Colors.white10,
+                  valueColor: AlwaysStoppedAnimation<Color>(resultColor),
+                ),
+              ),
             const SizedBox(height: 6),
-
-// إضافة نص توضيحي صغير تحت البار (اختياري بس بيدي شكل صايع)
+            // التعديل هنا: خليه يظهر كلمة REAL أو FAKE حسب الحالة وبمحاذاة مظبوطة
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                label.toUpperCase(),
+                label.toLowerCase().contains('fake') ? 'FAKE' : 'REAL', // عشان يكتب REAL لو النتيجة سليمة
                 style: TextStyle(
-                  color: resultColor.withValues(alpha: 0.6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2,
+                    color: label.toLowerCase().contains('fake')
+                        ? DetectionTheme.cancelRed.withValues(alpha: 0.6)
+                        : Colors.greenAccent.withValues(alpha: 0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1.2
                 ),
               ),
             ),
@@ -208,32 +182,23 @@ class ScanResultPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const BottomNav(activePage: 'scan'),
+
     );
   }
 
-
   Widget _buildMediaPreview(BuildContext context) {
     if (mediaType == DetectionMediaType.audio) {
-      // هينادي كود الصوت بتاعك القديم زي ما هو بدون تغيير حرف
       return _AudioPlayerWidget(audioFile: file);
     } else {
-      // عرض الصورة بشكل شيك مع برواز بسيط
-      // الطريقة الصح:
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.black26, // حطي اللون هنا في الـ Container
+          color: Colors.black26,
           border: Border.all(color: Colors.white10, width: 1.2),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Image.file(
-            file,
-            width: double.infinity,
-            height: AppResponsive.hp(context, 30),
-            fit: BoxFit.contain,
-
-          ),
+          child: Image.file(file, width: double.infinity, height: AppResponsive.hp(context, 30), fit: BoxFit.contain),
         ),
       );
     }
@@ -242,11 +207,7 @@ class ScanResultPage extends StatelessWidget {
   Widget _buildConfidenceBox(String title, String percent, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: DetectionTheme.cardDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white10),
-      ),
+      decoration: BoxDecoration(color: DetectionTheme.cardDark, borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.white10)),
       child: Column(
         children: [
           Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
@@ -257,20 +218,33 @@ class ScanResultPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons() {
+  // الدالة المعدلة لاستقبال البيانات وتفعيل الشير
+  Widget _buildActionButtons(String labelText, String realP, String fakeP) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              final String shareText = '''
+ TrueVision AI Analysis Result:
+------------------------------
+📁 File: ${file.path.split('/').last}
+🛡️ Verdict: ${labelText.toUpperCase()}
+📊 Confidence: $realP Real / $fakeP Fake
+
+Stay Aware. Stay Protected. 
+Sent via TrueVision App.
+''';
+              Share.share(shareText, subject: 'Deepfake Analysis Result');
+            },
             icon: const Icon(Icons.share_rounded, size: 20),
             label: const Text('Share Result'),
             style: ElevatedButton.styleFrom(
               backgroundColor: DetectionTheme.primaryLight,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ),
@@ -285,7 +259,7 @@ class ScanResultPage extends StatelessWidget {
               backgroundColor: Colors.white,
               side: const BorderSide(color: DetectionTheme.downloadBorder, width: 1.2),
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ),
@@ -294,7 +268,7 @@ class ScanResultPage extends StatelessWidget {
   }
 }
 
-
+// --- ويدجت مشغل الصوت ---
 class _AudioPlayerWidget extends StatefulWidget {
   const _AudioPlayerWidget({required this.audioFile});
   final File audioFile;
