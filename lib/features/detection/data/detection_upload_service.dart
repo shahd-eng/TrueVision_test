@@ -105,4 +105,32 @@ class DetectionUploadService {
     final message = bodyJson?['message'] ?? bodyJson?['errors']?.toString() ?? 'Server error ($statusCode)';
     throw DetectionUploadException(message.toString(), statusCode: statusCode);
   }
+
+  // جوه كلاس DetectionUploadService
+  static const String _aiBaseUrl = 'https://unmarine-virgen-spiriferous.ngrok-free.dev';
+
+  Future<Map<String, dynamic>> getAiDetectionResult(File file, DetectionMediaType type) async {
+    // بنحدد الـ endpoint بناءً على نوع الميديا (دلوقت معانا الصوت، وبعدين هنزود الباقي)
+    String endpoint = '/Predict_Audio';
+    if (type == DetectionMediaType.image) endpoint = '/Predict_Image'; // لو جهزوه
+
+    var request = http.MultipartRequest('POST', Uri.parse('$_aiBaseUrl$endpoint'));
+
+    // الكي هنا 'audio' زي ما بعتوه في الصورة
+    request.files.add(await http.MultipartFile.fromPath('audio', file.path));
+
+    try {
+      final streamedResponse = await _client.send(request).timeout(const Duration(seconds: 30));
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('AI Server Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to AI server: $e');
+    }
+  }
 }
+

@@ -41,6 +41,8 @@ dependencies:
 
   # File picker for selecting images / videos / audios
   file_picker: ^8.0.0
+  audioplayers: ^5.2.1
+  audio_video_progress_bar: ^2.0.3
 
   # Local storage for tokens and user data
   shared_preferences: ^2.2.0

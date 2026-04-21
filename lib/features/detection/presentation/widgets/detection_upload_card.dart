@@ -8,10 +8,12 @@ class DetectionUploadCard extends StatelessWidget {
     super.key,
     required this.onTap,
     this.height = 240,
+    this.child, // إضافة الـ child هنا عشان نستقبل الأشكال الجديدة
   });
 
   final VoidCallback onTap;
   final double height;
+  final Widget? child; // تعريف المتغير
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,8 @@ class DetectionUploadCard extends StatelessWidget {
               stops: [0.1, 0.71],
             ),
           ),
-          child: Column(
+          // التعديل هنا: لو فيه child مبعوث اعرضه، لو مفيش اعرض الشكل الافتراضي
+          child: child ?? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(

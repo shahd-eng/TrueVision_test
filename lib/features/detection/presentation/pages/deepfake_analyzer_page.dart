@@ -4,16 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:true_vision/core/responsive/app_responsive.dart';
 import 'package:true_vision/features/detection/core/detection_media_type.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
-// استبدلي import الخدمة القديمة بـ AuthServiceManager
 import 'package:true_vision/features/auth/data/auth_service_manager.dart';
 import 'package:true_vision/features/detection/presentation/pages/analyzing_content_page.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_app_bar.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_bottom_nav.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_or_divider.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_upload_card.dart';
-
-import 'choose_function_page.dart';
-import 'history_page.dart';
 
 class DeepfakeAnalyzerPage extends StatefulWidget {
   const DeepfakeAnalyzerPage({super.key, required this.mediaType});
@@ -26,9 +22,8 @@ class DeepfakeAnalyzerPage extends StatefulWidget {
 
 class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
   final TextEditingController _linkController = TextEditingController();
-
-
   bool _isUploading = false;
+  File? _selectedFile;
 
   @override
   void dispose() {
@@ -36,68 +31,45 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
     super.dispose();
   }
 
-  Future<void> _pickAndUploadFile() async {
-    if (_isUploading) return;
-    print("DEBUG: Token is -> ${AuthServiceManager().tokenStorage.getToken()}");
-    // 1. التأكد من وجود التوكن باستخدام المانجر الموحد
-    if (!AuthServiceManager().isAuthenticated) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please login first to upload media.')),
-      );
-      return;
-    }
-
+  Future<void> _pickFile() async {
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: _allowedExtensionsFor(widget.mediaType),
+      type: FileType.any,
     );
 
-    if (result == null || result.files.isEmpty) return;
-
-    final String? path = result.files.single.path;
-    if (path == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to read selected file path.')),
-      );
-      return;
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedFile = File(result.files.single.path!);
+      });
     }
+  }
 
-    final file = File(path);
+  Future<void> _uploadAndAnalyze() async {
+    if (_selectedFile == null || _isUploading) return;
 
     setState(() => _isUploading = true);
 
     try {
-      // 2. استخدام الخدمة المربوطة بالمانجر مباشرة
-      // ده بيضمن إن التوكن والـ Path والـ File يتبعتوا صح للسيرفر
-      await AuthServiceManager().detectionUploadService.uploadMedia(
-        file: file,
-        type: widget.mediaType,
-      );
+      // محاكاة بسيطة للرفع
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacement( // استخدمي pushReplacement عشان ميرجعش للتحميل تاني
+
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
-          builder: (_) => AnalyzingContentPage(mediaType: widget.mediaType),
+          builder: (_) => AnalyzingContentPage(
+            mediaType: widget.mediaType,
+            file: _selectedFile!,
+          ),
         ),
       );
     } catch (e) {
-      if (!mounted) return;
-      // إظهار رسالة الخطأ الحقيقية اللي جاية من الـ Service
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    } finally {
       if (mounted) {
-        setState(() => _isUploading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
       }
-    }
-  }
-
-  List<String> _allowedExtensionsFor(DetectionMediaType type) {
-    switch (type) {
-      case DetectionMediaType.image: return ['jpg', 'jpeg', 'png', 'webp'];
-      case DetectionMediaType.video: return ['mp4', 'mov', 'mkv'];
-      case DetectionMediaType.audio: return ['mp3', 'wav', 'm4a'];
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 
@@ -106,7 +78,6 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
     return Scaffold(
       backgroundColor: DetectionTheme.backgroundDark,
       appBar: PreferredSize(
-
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
         child: Padding(
           padding: EdgeInsets.only(top: AppResponsive.hp(context, 4)),
@@ -114,9 +85,6 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
             title: 'Deepfake Analyzer',
             onBack: () => Navigator.of(context).pop(),
             trailingIcon: Icons.history_rounded,
-            onTrailingTap: () {
-              // مثلاً لو عاوزة تفتحي الـ History هنا
-            },
           ),
         ),
       ),
@@ -152,34 +120,114 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
                     ),
                     SizedBox(height: AppResponsive.hp(context, 4)),
 
-                    // الكارد هينادي الدالة اللي بتستخدم المانجر
+                    // الكارد المعدل بالكامل
                     DetectionUploadCard(
-                      onTap: _isUploading ? () {} : _pickAndUploadFile,
+                      onTap: _isUploading ? () {} : _pickFile,
+                      child: _buildUploadCardContent(),
                     ),
 
                     SizedBox(height: AppResponsive.hp(context, 3)),
                     const DetectionOrDivider(),
                     SizedBox(height: AppResponsive.hp(context, 3)),
-
-                    // الـ TextField والزرار بنفس المنطق...
                     _buildLinkField(),
-
                     SizedBox(height: AppResponsive.hp(context, 4)),
-
                     _buildConfirmButton(),
                     SizedBox(height: AppResponsive.hp(context, 2)),
                   ],
                 ),
               ),
             ),
-
           ],
         ),
       ),
-      bottomNavigationBar: BottomNav(activePage: 'scan',
-        
-      ),
+      bottomNavigationBar: const BottomNav(activePage: 'scan'),
     );
+  }
+
+  // دالة بناء المحتوى الذكي للكارد
+  Widget? _buildUploadCardContent() {
+    if (_isUploading) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(color: Colors.white),
+          const SizedBox(height: 16),
+          const Text(
+            "Preparing Analysis...",
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+        ],
+      );
+    }
+
+    if (_selectedFile != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // اسم الملف مع أيقونة النجاح
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _selectedFile!.path.split('/').last,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+
+            // شكل Waveform احترافي مالي البوكس
+            Container(
+              height: 70,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(20, (index) {
+                  return Container(
+                    width: 4,
+                    // أطوال متغيرة لعمل شكل نبضات صوتية
+                    height: (index % 3 == 0) ? 40 : (index % 2 == 0) ? 25 : 15,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  );
+                }),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+            const Text(
+              "Tap to change selected file",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return null; // يرجع للشكل الافتراضي للكارد
   }
 
   Widget _buildLinkField() {
@@ -188,14 +236,14 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
       style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Paste the link here',
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16),
-        prefixIcon: Icon(Icons.link_rounded, color: DetectionTheme.primaryLight, size: 20),
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
+        prefixIcon: const Icon(Icons.link_rounded, color: DetectionTheme.primaryLight, size: 20),
         filled: true,
         fillColor: DetectionTheme.backgroundDark,
         contentPadding: const EdgeInsets.all(16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -206,16 +254,18 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
   }
 
   Widget _buildConfirmButton() {
+    bool isEnabled = _selectedFile != null && !_isUploading;
+
     return GestureDetector(
-      onTap: _isUploading ? null : _pickAndUploadFile,
+      onTap: isEnabled ? _uploadAndAnalyze : null,
       child: Opacity(
-        opacity: _isUploading ? 0.7 : 1.0,
+        opacity: isEnabled ? 1.0 : 0.5,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: DetectionTheme.primaryLight,
+            color: isEnabled ? DetectionTheme.primaryLight : Colors.grey[800],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -223,7 +273,7 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
               const Icon(Icons.shield_rounded, color: Colors.white, size: 20),
               const SizedBox(width: 8),
               Text(
-                _isUploading ? 'Uploading...' : 'Confirm & Analyze',
+                _isUploading ? 'Processing...' : 'Confirm & Analyze',
                 style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ],
