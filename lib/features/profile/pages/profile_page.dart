@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:true_vision/features/profile/pages/subscription_plans_page.dart';
-import '../../../core/utils/app_colors.dart';
+import '../../../core/responsive/app_responsive.dart';
+
+import '../../../core/theme/app_colors.dart';
 import '../../../domain/entities/user.dart';
+import '../../detection/presentation/widgets/detection_app_bar.dart';
 import '../../detection/presentation/widgets/detection_bottom_nav.dart';
 import '../../shell/main_shell.dart';
 import '../pages/edit_profile_page.dart';
@@ -24,13 +28,29 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // Scaffold هو الحل السحري لمشكلة الشاشة الحمراء
-    return Scaffold(
-      bottomNavigationBar:BottomNav(activePage: 'Profile',) ,
-      backgroundColor: const Color(0xFF0F172A), // نفس درجة الخلفية اللي إنتي مستخدماها
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // يخلي حتة الساعة شفافة فتاخد لون الـ Scaffold
+        statusBarIconBrightness: Brightness.light, // يخلي أيقونات الساعة والشحن بيضاء
+        systemNavigationBarColor: AppColors.navy500, // يوحد لون الـ Navigation Bar اللي تحت كمان
+    ),
+    child: Scaffold(
+    backgroundColor: AppColors.navy500,
+    appBar: PreferredSize(
+    preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
+    child: Padding(
+    padding: EdgeInsets.only(top: AppResponsive.hp(context, 3)),
+    child: DetectionAppBar(
+    title: 'Profile',
+    onBack: () => Navigator.of(context).pop(),
+    trailingIcon: Icons.info_outline_rounded,
+    ),
+    ),
+    ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopBar(),
+
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -54,34 +74,11 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
+    ),
     );
   }
 
-  Widget _buildTopBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            onPressed: () => MainShellScope.selectTabOf(context, 0),
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          Text(
-            'Profile',
-            style: GoogleFonts.workSans(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 44),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildUserCard() {
     return Container(

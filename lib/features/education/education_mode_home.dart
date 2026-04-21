@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../detection/presentation/widgets/detection_bottom_nav.dart';
 import '../shell/main_shell.dart';
 import 'DetectDeepfakeScreen.dart';
@@ -72,7 +73,7 @@ class EducationHomeScreen extends StatelessWidget {
             width: double.infinity,
 
             decoration: const BoxDecoration(
-              color: Color(0xFF0E1728),
+              color: AppColors.navy500,
             ),
 
             child: Row(

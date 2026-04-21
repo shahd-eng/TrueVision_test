@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +32,8 @@ class ScanResultPage extends StatelessWidget {
 
 
     final String label = (data['label'] ?? data['predicted_label'] ?? 'Unknown').toString();
+    final String? heatmapBase64 = data['visual_result'];
+    final String? heatmapUrl = data['heatmap_url'];
 
 
     double parseValue(dynamic val) {
@@ -45,6 +48,7 @@ class ScanResultPage extends StatelessWidget {
     double fakeValueRaw = parseValue(data['fake_prob'] ?? data['fake_probability'] ?? probs['fake']);
 
 
+
     if (realValueRaw > 1.0) realValueRaw /= 100;
     if (fakeValueRaw > 1.0) fakeValueRaw /= 100;
 
@@ -55,7 +59,13 @@ class ScanResultPage extends StatelessWidget {
     final Color resultColor = label.toLowerCase().contains('fake')
         ? DetectionTheme.cancelRed
         : Colors.greenAccent;
-      return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // يخلي حتة الساعة شفافة فتاخد لون الـ Scaffold
+        statusBarIconBrightness: Brightness.light, // يخلي أيقونات الساعة والشحن بيضاء
+        systemNavigationBarColor: AppColors.navy500, // يوحد لون الـ Navigation Bar اللي تحت كمان
+    ),
+    child: Scaffold(
       backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
@@ -106,7 +116,7 @@ class ScanResultPage extends StatelessWidget {
             SizedBox(height: AppResponsive.hp(context, 2)),
 
 
-            _buildMediaPreview(context),
+            _buildMediaPreview(context, heatmapBase64, heatmapUrl),
 
             SizedBox(height: AppResponsive.hp(context, 2.5)),
 
@@ -182,26 +192,60 @@ class ScanResultPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const BottomNav(activePage: 'scan'),
+    ),
 
     );
   }
 
-  Widget _buildMediaPreview(BuildContext context) {
+  Widget _buildMediaPreview(BuildContext context, String? heatmapBase64, String? heatmapUrl) {
     if (mediaType == DetectionMediaType.audio) {
       return _AudioPlayerWidget(audioFile: file);
-    } else {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.black26,
-          border: Border.all(color: Colors.white10, width: 1.2),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Image.file(file, width: double.infinity, height: AppResponsive.hp(context, 30), fit: BoxFit.contain),
-        ),
-      );
     }
+
+    return Column(
+      children: [
+        // الصورة الأصلية
+        _buildImageCard(context, Image.file(file, fit: BoxFit.contain)),
+
+        // عرض الهيت ماب لو موجودة (سواء لينك أو كود)
+        if (heatmapUrl != null || heatmapBase64 != null) ...[
+          const SizedBox(height: 16),
+          const Align(
+            alignment: Alignment.center,
+            child: Text(
+              'Visual Analysis',
+              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildImageCard(
+            context,
+            heatmapUrl != null
+                ? Image.network(heatmapUrl, fit: BoxFit.contain) // لو مريم بعتت لينك
+                : Image.memory(base64Decode(heatmapBase64!), fit: BoxFit.contain), // لو بعتت كود
+          ),
+        ],
+      ],
+    );
+  }
+
+// دالة مساعدة عشان منكررش كود الـ Container
+  Widget _buildImageCard(BuildContext context, Widget imageWidget) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.black26,
+        border: Border.all(color: Colors.white10, width: 1.2),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: SizedBox(
+          width: double.infinity,
+          height: AppResponsive.hp(context, 25),
+          child: imageWidget,
+        ),
+      ),
+    );
   }
 
   Widget _buildConfidenceBox(String title, String percent, Color color) {

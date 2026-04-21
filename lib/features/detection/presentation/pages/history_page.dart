@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:true_vision/core/responsive/app_responsive.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
 import 'package:true_vision/features/detection/presentation/pages/media_type_page.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_app_bar.dart';
 import 'package:true_vision/features/detection/presentation/widgets/detection_bottom_nav.dart';
 
-import 'choose_function_page.dart';
+import '../../../../core/theme/app_colors.dart';
+
 
 /// شاشة History في حالة عدم وجود أي تحليلات بعد.
 class HistoryPage extends StatelessWidget {
@@ -23,24 +25,29 @@ class HistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: DetectionTheme.backgroundDark,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // يخلي حتة الساعة شفافة فتاخد لون الـ Scaffold
+        statusBarIconBrightness: Brightness.light, // يخلي أيقونات الساعة والشحن بيضاء
+        systemNavigationBarColor: AppColors.navy500, // يوحد لون الـ Navigation Bar اللي تحت كمان
+    ),
+    child: Scaffold(
+      backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
-        // بنحدد الارتفاع الكلي (الارتفاع الافتراضي + مسافة الـ Padding)
+
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
         child: Padding(
-          // نفس المسافة اللي استخدمناها في صفحة الـ Protection والـ Media Type
+
           padding: EdgeInsets.only(top: AppResponsive.hp(context, 4)),
           child: DetectionAppBar(
             title: 'History',
             onBack: () => Navigator.of(context).pop(),
-            // بما إننا عدلنا الـ AppBar يقبل Widget، هنبعت الأيقونة كدة:
             trailingIcon:
               Icons.search_rounded,
 
 
             onTrailingTap: () {
-              // كود البحث في التاريخ هنا
+
             },
           ),
         ),
@@ -169,7 +176,7 @@ class HistoryPage extends StatelessWidget {
 
             SizedBox(height: AppResponsive.hp(context, 5)),
 
-            // الكروت السفلية (Fast Detection / High Accuracy)
+
             Padding(
               padding:
                   EdgeInsets.symmetric(horizontal: AppResponsive.wp(context, 4)),
@@ -200,6 +207,7 @@ class HistoryPage extends StatelessWidget {
 
 
         ),
+    ),
 
 
     );

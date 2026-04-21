@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:true_vision/core/responsive/app_responsive.dart';
 import 'package:true_vision/features/detection/core/detection_media_type.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
@@ -77,7 +78,13 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // يخلي حتة الساعة شفافة فتاخد لون الـ Scaffold
+        statusBarIconBrightness: Brightness.light, // يخلي أيقونات الساعة والشحن بيضاء
+        systemNavigationBarColor: AppColors.navy500, // يوحد لون الـ Navigation Bar اللي تحت كمان
+    ),
+    child: Scaffold(
       backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
@@ -114,7 +121,7 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
                       child: Text(
                         'Stay aware. Stay protected.',
                         style: TextStyle(
-                          color: DetectionTheme.primaryLight,
+                          color: AppColors.primary500,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -143,6 +150,7 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
         ),
       ),
       bottomNavigationBar: const BottomNav(activePage: 'scan'),
+    )
     );
   }
 
@@ -227,17 +235,17 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
       decoration: InputDecoration(
         hintText: 'Paste the link here',
         hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
-        prefixIcon: const Icon(Icons.link_rounded, color: DetectionTheme.primaryLight, size: 20),
+        prefixIcon: const Icon(Icons.link_rounded, color: AppColors.primary500, size: 20),
         filled: true,
-        fillColor: DetectionTheme.backgroundDark,
+        fillColor: AppColors.tvDB,
         contentPadding: const EdgeInsets.all(16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: DetectionTheme.primaryLight, width: 1.5),
+          borderSide: BorderSide(color: AppColors.primary500, width: 1.5),
         ),
       ),
     );
@@ -254,7 +262,7 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(8),
             color: isEnabled ? DetectionTheme.primaryLight : Colors.grey[800],
           ),
           child: Row(
