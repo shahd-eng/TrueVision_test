@@ -161,73 +161,61 @@ class _DeepfakeAnalyzerPageState extends State<DeepfakeAnalyzerPage> {
     }
 
     if (_selectedFile != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // اسم الملف مع أيقونة النجاح
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _selectedFile!.path.split('/').last,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+      // --- لو النوع صورة، املأي الكارد بالكامل بدون أي نصوص ---
+      if (widget.mediaType == DetectionMediaType.image) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16), // نفس الـ radius بتاع الـ Card
+          child: Image.file(
+            _selectedFile!,
+            width: double.infinity,
+            height: double.infinity, // يملأ الكارد بالكامل
+            fit: BoxFit.cover,
+            //backgroundColor: Colors.black12, // خلفية باهتة لو الصورة صغيرة
+          ),
+        );
+      }
+
+      // --- لو النوع صوت، اعرضي الـ Waveform بتاعك القديم زي ما هو ---
+      else if (widget.mediaType == DetectionMediaType.audio) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // شكل الـ Waveform الاحترافي مالي البوكس
+              Container(
+                height: 70,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
-            const SizedBox(height: 25),
-
-            // شكل Waveform احترافي مالي البوكس
-            Container(
-              height: 70,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(20, (index) {
+                    return Container(
+                      width: 4,
+                      height: (index % 3 == 0) ? 40 : (index % 2 == 0) ? 25 : 15,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    );
+                  }),
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(20, (index) {
-                  return Container(
-                    width: 4,
-                    // أطوال متغيرة لعمل شكل نبضات صوتية
-                    height: (index % 3 == 0) ? 40 : (index % 2 == 0) ? 25 : 15,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  );
-                }),
+              const SizedBox(height: 15),
+              const Text(
+                "Tap to change selected file",
+                style: TextStyle(color: Colors.white70, fontSize: 12, fontStyle: FontStyle.italic),
               ),
-            ),
-
-            const SizedBox(height: 15),
-            const Text(
-              "Tap to change selected file",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        );
+      }
     }
 
-    return null; // يرجع للشكل الافتراضي للكارد
+    return null; // يرجع للشكل الافتراضي (Upload Icon)
   }
 
   Widget _buildLinkField() {

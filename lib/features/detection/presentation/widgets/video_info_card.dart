@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:true_vision/features/detection/core/detection_theme.dart';
+import 'package:true_vision/features/detection/core/detection_media_type.dart'; // تأكدي من الـ import ده
 
-/// كارد يعرض معلومات الملف المُسح (اسم، تاريخ، مدة، حجم).
+/// كارد يعرض معلومات الملف المُسح (اسم، تاريخ، مدة، حجم) بشكل ديناميكي.
 class VideoInfoCard extends StatelessWidget {
   const VideoInfoCard({
     super.key,
@@ -9,12 +10,14 @@ class VideoInfoCard extends StatelessWidget {
     required this.scannedAt,
     required this.duration,
     required this.size,
+    required this.mediaType, // ضفنا ده عشان نعرف نوع الميديا
   });
 
   final String fileName;
   final String scannedAt;
   final String duration;
   final String size;
+  final DetectionMediaType mediaType;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +33,7 @@ class VideoInfoCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // أيقونة الميديا الديناميكية
           Container(
             width: 48,
             height: 48,
@@ -37,10 +41,15 @@ class VideoInfoCard extends StatelessWidget {
               color: DetectionTheme.tealAccent.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.videocam_rounded,
+            child: Icon(
+              // اختيار الأيقونة بناءً على النوع
+              mediaType == DetectionMediaType.image
+                  ? Icons.image_rounded
+                  : mediaType == DetectionMediaType.audio
+                  ? Icons.audiotrack_rounded
+                  : Icons.videocam_rounded,
               color: DetectionTheme.tealAccent,
-              size: 26,
+              size: 28,
             ),
           ),
           const SizedBox(width: 14),
@@ -48,6 +57,7 @@ class VideoInfoCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // اسم الملف
                 Text(
                   fileName,
                   style: const TextStyle(
@@ -55,8 +65,11 @@ class VideoInfoCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
+                // وقت الفحص
                 Text(
                   'Scanned: $scannedAt',
                   style: TextStyle(
@@ -65,8 +78,11 @@ class VideoInfoCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
+                // الحجم والنوع/المدة
                 Text(
-                  'Duration: $duration • Size: $size',
+                  mediaType == DetectionMediaType.image
+                      ? 'Format: Image • $size' // لو صورة مش هنكتب Duration
+                      : 'Duration: $duration • $size',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 11,
