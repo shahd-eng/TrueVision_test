@@ -40,22 +40,26 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
   }
 
   void _startProgress() {
-    const int stepMs = 50;
+    // الفيديو بياخد وقت أطول (حوالي دقيقة)، فبنخلي العداد أبطأ للفيديو
+    // عشان ما يوصلش لـ 90% بسرعة ويفضل واقف كتير.
+    final int stepMs = widget.mediaType == DetectionMediaType.video ? 400 : 50;
     int step = 0;
 
-    _timer = Timer.periodic(const Duration(milliseconds: stepMs), (timer) {
+    _timer = Timer.periodic(Duration(milliseconds: stepMs), (timer) {
       if (!mounted) return;
       step++;
 
       setState(() {
+        // العداد بيفضل يتحرك لحد 90% ويستنى رد السيرفر الحقيقي
         if (step <= 90) {
           _progress = step / 100;
         }
 
+        // أول ما النتيجة تيجي (_aiResult != null) بنكمل لـ 100% وننقل الصفحة
         if (_aiResult != null && _progress >= 0.9) {
           _progress = 1.0;
           timer.cancel();
-          Future.delayed(const Duration(milliseconds: 400), () {
+          Future.delayed(const Duration(milliseconds: 600), () {
             if (!mounted) return;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -88,7 +92,7 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text("Error: ${e.toString()}"),
             backgroundColor: DetectionTheme.cancelRed,
           ),
         );
@@ -103,7 +107,7 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
     super.dispose();
   }
 
-  // --- دالة ذكية لعرض الملف المرفوع في البريفيو ---
+  // دالة عرض البريفيو حسب نوع الملف
   Widget _buildPreviewContent() {
     if (widget.mediaType == DetectionMediaType.image) {
       return Image.file(
@@ -128,11 +132,18 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
         ),
       );
     } else {
-      // في حالة الفيديو، ممكن نعرض أيقونة فيديو مؤقتاً
+      // في حالة الفيديو
       return Container(
         color: Colors.black,
         child: const Center(
-          child: Icon(Icons.play_circle_outline, size: 64, color: Colors.white),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.video_library_rounded, size: 64, color: DetectionTheme.primaryLight),
+              SizedBox(height: 12),
+              Text("Video File Ready", style: TextStyle(color: Colors.white70, fontSize: 14)),
+            ],
+          ),
         ),
       );
     }
@@ -145,10 +156,8 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
     return Scaffold(
       backgroundColor: AppColors.navy500,
       appBar: PreferredSize(
-        // hp(context, 10) مثلاً عشان تدي مساحة كافية للـ AppBar والمسافة اللي فوقه
         preferredSize: Size.fromHeight(AppResponsive.hp(context, 10)),
         child: Padding(
-          // هنا بنتحكم في المسافة اللي فوق الـ AppBar بس
           padding: EdgeInsets.only(top: AppResponsive.hp(context, 3)),
           child: DetectionAppBar(
             title: 'Analyzing Content',
@@ -167,7 +176,6 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: AppResponsive.hp(context, 3)),
-              // Logo
               Image.asset(
                 AppImages.logo,
                 width: 128,
@@ -175,14 +183,18 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
                 fit: BoxFit.contain,
               ),
               SizedBox(height: AppResponsive.hp(context, 3)),
-              const Text(
-                'Your content is being analyzed...',
-                style: TextStyle(color: DetectionTheme.primaryLight, fontSize: 20, fontWeight: FontWeight.w600),
+
+              // نص متغير حسب نوع الميديا
+              Text(
+                widget.mediaType == DetectionMediaType.video
+                    ? 'Analyzing video frames...'
+                    : 'Your content is being analyzed...',
+                style: const TextStyle(color: DetectionTheme.primaryLight, fontSize: 20, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
+
               SizedBox(height: AppResponsive.hp(context, 3)),
 
-              // --- البريفيو الجديد اللي فيه ملفك يا شهد ---
               DottedBorder(
                 color: DetectionTheme.primaryLight.withValues(alpha: 0.5),
                 strokeWidth: 2,
@@ -194,7 +206,7 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
                   child: SizedBox(
                     width: double.infinity,
                     height: AppResponsive.hp(context, 28),
-                    child: _buildPreviewContent(), // نداء الدالة هنا
+                    child: _buildPreviewContent(),
                   ),
                 ),
               ),
@@ -214,8 +226,8 @@ class _AnalyzingContentPageState extends State<AnalyzingContentPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('$_percentage%', style: const TextStyle(color: DetectionTheme.primaryLight, fontSize: 24, fontWeight: FontWeight.w700)),
-                  const SizedBox(width: 6),
-                  const Text('Processing.', style: TextStyle(color: DetectionTheme.primaryLight, fontSize: 18)),
+                  const SizedBox(width: 8),
+                  const Text('Processing...', style: TextStyle(color: DetectionTheme.primaryLight, fontSize: 18)),
                 ],
               ),
               const Spacer(),
